@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">HackerNews</string>
+    <string name="ok">OK</string>
+    <string name="retry">RETRY</string>
+    <string name="no_internet">Slow or no internet connection. Please check your internet settings and try again later!</string>
+    <string name="request_failed">Request failed, please try again later!</string>
+</resources>

@@ -1,40 +1,44 @@
-package com.hoangthien.hackernews.ui.videolist;
+package com.hoangthien.hackernews.home.comment;
 
-import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
 import com.hoangthien.hackernews.R;
 import com.hoangthien.hackernews.base.baseactivity.ListLoadingActivity;
 import com.hoangthien.hackernews.customview.RecyclerDivider;
 import com.hoangthien.hackernews.data.model.Comment;
+import com.hoangthien.hackernews.data.reponsitory.comment.CommentApiServiceImpl;
+import com.hoangthien.hackernews.data.reponsitory.comment.CommentReponsitoryImpl;
+import com.hoangthien.hackernews.utils.AsyncTaskManager;
 import com.hoangthien.hackernews.utils.TConstants;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class VideoListActivity extends ListLoadingActivity implements VideoListView {
+public class CommentActivity extends ListLoadingActivity implements CommentView {
 
-    private VideoListPresenter mPresenter;
+    private CommentPresenter mPresenter;
     private RecyclerView mRecyclerView;
-    private VideoListAdapter mAdapter;
-    private int mDataLength;
+    private CommentListAdapter mAdapter;
     private boolean mLoading;
+    private int mDataLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.video_list_layout);
 
-        initToolbar(getIntent().getStringExtra(TConstants.EXTRA_TITLE));
+        setContentView(R.layout.comment_list_layout);
+
+        initToolbar(getTitle().toString());
         showBackBtn();
         initView();
 
-//        mPresenter = new VideoListPresenter(this, new CommentReponsitoryImpl(this, new CommentApiServiceImpl()));
-        int type = getIntent().getIntExtra(TConstants.EXTRA_TYPE, 0);
-        String sourceId = getIntent().getStringExtra(TConstants.EXTRA_ID);
-        mPresenter.getData(type, sourceId);
+        ArrayList<Long> ids = (ArrayList<Long>) getIntent().getSerializableExtra(TConstants.EXTRA_DATA);
+
+        mPresenter = new CommentPresenter(this, new CommentReponsitoryImpl(AsyncTaskManager.getInstance(this), new CommentApiServiceImpl()), ids);
+        mPresenter.getData();
 
     }
 
@@ -43,14 +47,16 @@ public class VideoListActivity extends ListLoadingActivity implements VideoListV
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
+
+        mRecyclerView.addItemDecoration(new RecyclerDivider(getResources().getDimensionPixelOffset(R.dimen.dimen_3_6), -1));
         mRecyclerView.addOnScrollListener(mOnScrollListener);
-        mRecyclerView.addItemDecoration(new RecyclerDivider((int) getResources().getDisplayMetrics().density, 0xffcccccc));
+
     }
 
     private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (!mLoading && ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition() > mDataLength - 4) {
+            if (!mLoading && ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition() > mDataLength - 4) {
                 mLoading = true;
                 mPresenter.loadNextPage();
             }
@@ -58,31 +64,23 @@ public class VideoListActivity extends ListLoadingActivity implements VideoListV
     };
 
     @Override
-    public void showData(ArrayList<Comment> videos, boolean canLoadMore) {
-        mDataLength = videos.size();
+    public void showData(final List<Comment> comments, boolean canLoadmore) {
+        mDataLength = comments.size();
         mLoading = false;
         if (mAdapter == null) {
-            mAdapter = new VideoListAdapter(videos);
-            mAdapter.setOnClickButton1(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPresenter.handleItemSelected((Integer) v.getTag());
-                }
-            });
+            mAdapter = new CommentListAdapter(comments, this);
             mRecyclerView.setAdapter(mAdapter);
         } else {
             mAdapter.notifyDataSetChanged();
         }
-        if (!canLoadMore) {
+        if (!canLoadmore) {
             mRecyclerView.removeOnScrollListener(mOnScrollListener);
         }
     }
 
     @Override
-    public void startPlayerActivity(int position, Class activity) {
-        Intent intent = new Intent(VideoListActivity.this, activity);
-        intent.putExtra(TConstants.EXTRA_DATA, position);
-        startActivity(intent);
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override

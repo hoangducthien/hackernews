@@ -19,6 +19,10 @@ public class Comment implements JsonParser<Comment> {
     private String type;
     private String replyOf;
 
+    public Comment() {
+
+    }
+
     public Comment(JSONObject jsonObject) {
         mBy = jsonObject.optString("by");
         id = jsonObject.optString("id");
@@ -31,6 +35,7 @@ public class Comment implements JsonParser<Comment> {
         }
         time = jsonObject.optLong("time");
         type = jsonObject.optString("type");
+        text = jsonObject.optString("text");
     }
 
     public String getBy() {

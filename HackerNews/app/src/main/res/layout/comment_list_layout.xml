@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:animateLayoutChanges="true"
-             android:orientation="vertical">
+             android:layout_height="match_parent">
 
 
     <android.support.v7.widget.RecyclerView
@@ -12,9 +10,17 @@
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/tab_height"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/dimen_10_20"
+        android:paddingBottom="@dimen/tab_height"
         android:paddingTop="@dimen/dimen_10_20"/>
 
-    <include layout="@layout/toolbar_layout"/>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        style="@style/Toolbar"
+        android:background="@color/colorPrimary"/>
+
+
+    <View style="@style/ToolbarShadow"/>
 
 </FrameLayout>
+

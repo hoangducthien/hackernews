@@ -1,7 +1,5 @@
 package com.hoangthien.hackernews.data.reponsitory.home;
 
-import android.content.Context;
-
 import com.hoangthien.hackernews.base.TError;
 import com.hoangthien.hackernews.data.model.News;
 import com.hoangthien.hackernews.utils.AsyncTaskManager;
@@ -15,13 +13,11 @@ import java.util.List;
 
 public class HomeReponsitoryImpl implements HomeReponsitory {
 
-    private Context mContext;
     private AsyncTaskManager mAsyncTaskManager;
     private HomeApiService mHomeApiService;
 
-    public HomeReponsitoryImpl(Context context, HomeApiService homeApiService) {
-        mContext = context.getApplicationContext();
-        mAsyncTaskManager = AsyncTaskManager.getInstance(context);
+    public HomeReponsitoryImpl(AsyncTaskManager asyncTaskManager, HomeApiService homeApiService) {
+        mAsyncTaskManager = asyncTaskManager;
         mHomeApiService = homeApiService;
     }
 

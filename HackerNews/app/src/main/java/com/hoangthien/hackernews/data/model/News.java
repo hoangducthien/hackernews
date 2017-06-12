@@ -21,6 +21,10 @@ public class News implements JsonParser<News> {
     private String type;
     private String url;
 
+    public News() {
+
+    }
+
     public News(JSONObject jsonObject) {
         mBy = jsonObject.optString("by");
         descendants = jsonObject.optInt("descendants");

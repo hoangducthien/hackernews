@@ -1,8 +1,8 @@
 package com.hoangthien.hackernews.data.localdatastorage;
 
-import java.util.ArrayList;
-
 import com.hoangthien.hackernews.data.model.Comment;
+
+import java.util.ArrayList;
 
 /**
  * Created by hoangthien on 5/20/17.
@@ -23,11 +23,4 @@ public class DataCache {
     private DataCache() {
     }
 
-    public ArrayList<Comment> getActiveList() {
-        return mActiveList;
-    }
-
-    public void setActiveList(ArrayList<Comment> activeList) {
-        mActiveList = activeList;
-    }
 }

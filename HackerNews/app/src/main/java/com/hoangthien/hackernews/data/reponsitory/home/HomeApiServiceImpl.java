@@ -1,5 +1,6 @@
 package com.hoangthien.hackernews.data.reponsitory.home;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.hoangthien.hackernews.R;
@@ -31,17 +32,20 @@ public class HomeApiServiceImpl implements HomeApiService {
     public void getIdList(TAsyncCallback<List<Long>> result) {
         String url = TConstants.DOMAIN + ID_LIST;
         String data = HttpUtils.requestHttpGET(url);
-
-        try {
-            JSONArray jsonArray = new JSONArray(data);
-            ArrayList<Long> ids = new ArrayList<>();
-            int length = jsonArray.length();
-            for (int i = 0; i < length; i++) {
-                ids.add(jsonArray.optLong(i));
+        if (!TextUtils.isEmpty(data)) {
+            try {
+                JSONArray jsonArray = new JSONArray(data);
+                ArrayList<Long> ids = new ArrayList<>();
+                int length = jsonArray.length();
+                for (int i = 0; i < length; i++) {
+                    ids.add(jsonArray.optLong(i));
+                }
+                result.onSuccess(ids);
+            } catch (JSONException e) {
+                Log.e("getIdList", " " + e.getMessage());
+                result.onError(new TError(R.string.request_failed));
             }
-            result.onSuccess(ids);
-        } catch (JSONException e) {
-            Log.e("getIdList", " " + e.getMessage());
+        } else {
             result.onError(new TError(R.string.request_failed));
         }
     }

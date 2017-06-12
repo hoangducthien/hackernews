@@ -1,4 +1,4 @@
-package com.hoangthien.hackernews.ui.home;
+package com.hoangthien.hackernews.home.home;
 
 import com.hoangthien.hackernews.base.baseview.ListLoadingView;
 import com.hoangthien.hackernews.data.model.News;
@@ -11,6 +11,6 @@ import java.util.List;
 
 public interface HomeView extends ListLoadingView {
 
-    void showData(List<News> categories);
+    void showData(List<News> newses, boolean canLoadmore);
 
 }

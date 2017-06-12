@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/dimen_10_20"
+            android:paddingBottom="@dimen/tab_height"
             android:paddingTop="@dimen/dimen_10_20"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>

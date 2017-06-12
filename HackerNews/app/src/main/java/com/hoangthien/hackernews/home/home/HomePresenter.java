@@ -1,4 +1,4 @@
-package com.hoangthien.hackernews.ui.home;
+package com.hoangthien.hackernews.home.home;
 
 import android.view.View;
 
@@ -18,6 +18,7 @@ import java.util.List;
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
+    //TODO handle large screen (bigger page size)
     private static final int PAGE_SIZE = 25;
 
     private HomeReponsitory mHomeReponsitory;
@@ -43,7 +44,6 @@ public class HomePresenter extends BasePresenter<HomeView> {
         mIds = null;
         mCanLoadmore = true;
         mCurrentIndex = 0;
-        mNewses = new ArrayList<>();
         mHomeReponsitory.getIdList(mIdsCallback);
     }
 
@@ -51,7 +51,12 @@ public class HomePresenter extends BasePresenter<HomeView> {
         @Override
         public void onSuccess(List<Long> responseData) {
             mIds = new ArrayList<>(responseData);
-            loadNextPage();
+            mNextPageSize = PAGE_SIZE;
+            if (mCurrentIndex + mNextPageSize >= mIds.size()) {
+                mNextPageSize = mIds.size() - mCurrentIndex;
+                mCanLoadmore = false;
+            }
+            mHomeReponsitory.getDataList(mIds.subList(mCurrentIndex, mCurrentIndex + mNextPageSize), mFirstPageDataCallback);
         }
 
         @Override
@@ -73,23 +78,28 @@ public class HomePresenter extends BasePresenter<HomeView> {
         if (mIds.size() > mCurrentIndex) {
             mNextPageSize = PAGE_SIZE;
             if (mCurrentIndex + mNextPageSize >= mIds.size()) {
-                mNextPageSize = mIds.size() - mCurrentIndex - 1;
+                mNextPageSize = mIds.size() - mCurrentIndex;
                 mCanLoadmore = false;
             }
 
-            mHomeReponsitory.getDataList(mIds.subList(mCurrentIndex, mCurrentIndex + mNextPageSize), mDataCallback);
+            loadData(mIds.subList(mCurrentIndex, mCurrentIndex + mNextPageSize));
         }
     }
 
+    public void loadData(List<Long> ids) {
+        getView().showLoadmore();
+        mHomeReponsitory.getDataList(ids, mDataCallback);
+    }
 
-    private TAsyncCallback<List<News>> mDataCallback = new TAsyncCallback<List<News>>() {
+    private TAsyncCallback<List<News>> mFirstPageDataCallback = new TAsyncCallback<List<News>>() {
         @Override
         public void onSuccess(List<News> responseData) {
             if (getView() != null) {
                 getView().hideLoading();
+                mNewses.clear();
                 mNewses.addAll(responseData);
                 mCurrentIndex += mNextPageSize;
-                getView().showData(responseData);
+                getView().showData(mNewses, mCanLoadmore);
             }
         }
 
@@ -97,6 +107,31 @@ public class HomePresenter extends BasePresenter<HomeView> {
         public void onError(TError error) {
             if (getView() != null) {
                 getView().hideLoading();
+                getView().showError(error, R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getData();
+                    }
+                });
+            }
+        }
+    };
+
+    private TAsyncCallback<List<News>> mDataCallback = new TAsyncCallback<List<News>>() {
+        @Override
+        public void onSuccess(List<News> responseData) {
+            if (getView() != null) {
+                getView().hideLoadmore();
+                mNewses.addAll(responseData);
+                mCurrentIndex += mNextPageSize;
+                getView().showData(mNewses, mCanLoadmore);
+            }
+        }
+
+        @Override
+        public void onError(TError error) {
+            if (getView() != null) {
+                getView().hideLoadmore();
                 getView().showError(error, R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

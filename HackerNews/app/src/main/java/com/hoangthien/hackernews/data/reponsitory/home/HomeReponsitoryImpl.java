@@ -1,10 +1,12 @@
 package com.hoangthien.hackernews.data.reponsitory.home;
 
 import com.hoangthien.hackernews.base.TError;
+import com.hoangthien.hackernews.data.localdatastorage.DataCache;
 import com.hoangthien.hackernews.data.model.News;
 import com.hoangthien.hackernews.utils.AsyncTaskManager;
 import com.hoangthien.hackernews.utils.TAsyncCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,10 +17,12 @@ public class HomeReponsitoryImpl implements HomeReponsitory {
 
     private AsyncTaskManager mAsyncTaskManager;
     private HomeApiService mHomeApiService;
+    private DataCache mDataCache;
 
     public HomeReponsitoryImpl(AsyncTaskManager asyncTaskManager, HomeApiService homeApiService) {
         mAsyncTaskManager = asyncTaskManager;
         mHomeApiService = homeApiService;
+        mDataCache = DataCache.getInstance();
     }
 
 
@@ -30,6 +34,8 @@ public class HomeReponsitoryImpl implements HomeReponsitory {
                 mHomeApiService.getIdList(new TAsyncCallback<List<Long>>() {
                     @Override
                     public void onSuccess(List<Long> responseData) {
+                        mDataCache.setNewsIds(new ArrayList<>(responseData));
+                        mDataCache.setNewsList(null);
                         mAsyncTaskManager.successCallbackOnUIThread(result, responseData);
                     }
 
@@ -50,6 +56,7 @@ public class HomeReponsitoryImpl implements HomeReponsitory {
                 mHomeApiService.getDataList(ids, new TAsyncCallback<List<News>>() {
                     @Override
                     public void onSuccess(List<News> responseData) {
+                        mDataCache.addToNewsList(responseData);
                         mAsyncTaskManager.successCallbackOnUIThread(result, responseData);
                     }
 
@@ -61,4 +68,15 @@ public class HomeReponsitoryImpl implements HomeReponsitory {
             }
         });
     }
+
+    @Override
+    public ArrayList<News> getNewsListFromCache() {
+        return mDataCache.getNewsList();
+    }
+
+    @Override
+    public ArrayList<Long> getIdListFromCache() {
+        return mDataCache.getNewsIds();
+    }
 }
+

@@ -1,5 +1,6 @@
 package com.hoangthien.hackernews.home.comment;
 
+import android.os.Bundle;
 import android.view.View;
 
 import com.hoangthien.hackernews.R;
@@ -18,13 +19,17 @@ import java.util.List;
 
 public class CommentPresenter extends BasePresenter<CommentView> {
 
+    public static final String CURRENT_DATA_INDEX = "aaa";
+    public static final String CAN_LOAD_MORE = "aab";
+    public static final String NEXT_PAGE_SIZE = "aac";
+
     //TODO handle large screen (bigger page size)
     private static final int PAGE_SIZE = 10;
 
     private CommentReponsitory mReponsitory;
     private ArrayList<Comment> mComments = new ArrayList<>();
     private ArrayList<Long> mIds;
-    private int mCurrentIndex = 0;
+    private int mCurrentIndex;
     private boolean mCanLoadmore = true;
     private int mNextPageSize;
 
@@ -39,11 +44,34 @@ public class CommentPresenter extends BasePresenter<CommentView> {
     public void getData() {
         getView().showLoading();
         mNextPageSize = PAGE_SIZE;
+        mCurrentIndex = 0;
         if (mCurrentIndex + mNextPageSize >= mIds.size()) {
             mNextPageSize = mIds.size() - mCurrentIndex;
             mCanLoadmore = false;
         }
+        mReponsitory.clearComments();
         mReponsitory.getDataList(mIds.subList(mCurrentIndex, mCurrentIndex + mNextPageSize), mFirstPageDataCallback);
+    }
+
+    public void checkCache(Bundle bundle) {
+        int oldListPosition = bundle.getInt(CommentActivity.CURRENT_POSITION, -1);
+        if (oldListPosition > 0) {
+            mComments = mReponsitory.getCommentsFromCache();
+            if (mComments != null && !mComments.isEmpty()) {
+                mCurrentIndex = bundle.getInt(CURRENT_DATA_INDEX);
+                mNextPageSize = bundle.getInt(NEXT_PAGE_SIZE);
+                mCanLoadmore = bundle.getBoolean(CAN_LOAD_MORE);
+                getView().showData(mComments, mCanLoadmore);
+                return;
+            }
+        }
+        getData();
+    }
+
+    public void saveCurrentState(Bundle bundle) {
+        bundle.putInt(CURRENT_DATA_INDEX, mCurrentIndex);
+        bundle.putInt(NEXT_PAGE_SIZE, mNextPageSize);
+        bundle.putBoolean(CAN_LOAD_MORE, mCanLoadmore);
     }
 
 

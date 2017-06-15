@@ -19,6 +19,8 @@ import java.util.List;
 
 public class CommentActivity extends ListLoadingActivity implements CommentView {
 
+    public static final String CURRENT_POSITION = "current_position";
+
     private CommentPresenter mPresenter;
     private RecyclerView mRecyclerView;
     private CommentListAdapter mAdapter;
@@ -38,8 +40,12 @@ public class CommentActivity extends ListLoadingActivity implements CommentView 
         ArrayList<Long> ids = (ArrayList<Long>) getIntent().getSerializableExtra(TConstants.EXTRA_DATA);
 
         mPresenter = new CommentPresenter(this, new CommentReponsitoryImpl(AsyncTaskManager.getInstance(this), new CommentApiServiceImpl()), ids);
-        mPresenter.getData();
 
+        if (savedInstanceState != null) {
+            mPresenter.checkCache(savedInstanceState);
+        } else {
+            mPresenter.getData();
+        }
     }
 
     private void initView() {
@@ -51,6 +57,16 @@ public class CommentActivity extends ListLoadingActivity implements CommentView 
         mRecyclerView.addItemDecoration(new RecyclerDivider(getResources().getDimensionPixelOffset(R.dimen.dimen_3_6), -1));
         mRecyclerView.addOnScrollListener(mOnScrollListener);
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mRecyclerView != null) {
+            int position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            outState.putInt(CURRENT_POSITION, position);
+            mPresenter.saveCurrentState(outState);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {

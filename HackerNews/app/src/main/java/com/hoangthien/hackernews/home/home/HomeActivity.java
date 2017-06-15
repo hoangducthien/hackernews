@@ -1,7 +1,6 @@
 package com.hoangthien.hackernews.home.home;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +22,8 @@ import java.util.List;
 
 public class HomeActivity extends ListLoadingActivity implements HomeView {
 
+    public static final String CURRENT_POSITION = "current_position";
+
     private HomePresenter mHomePresenter;
     private RecyclerView mRecyclerView;
     private HomeListAdapter mAdapter;
@@ -41,7 +42,12 @@ public class HomeActivity extends ListLoadingActivity implements HomeView {
         initView();
 
         mHomePresenter = new HomePresenter(this, new HomeReponsitoryImpl(AsyncTaskManager.getInstance(this), new HomeApiServiceImpl()));
-        mHomePresenter.getData();
+
+        if (savedInstanceState != null) {
+            mHomePresenter.checkCache(savedInstanceState);
+        } else {
+            mHomePresenter.getData();
+        }
 
     }
 
@@ -75,9 +81,15 @@ public class HomeActivity extends ListLoadingActivity implements HomeView {
         }
     };
 
+
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mRecyclerView != null) {
+            int position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            outState.putInt(CURRENT_POSITION, position);
+            mHomePresenter.saveCurrentState(outState);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -91,7 +103,7 @@ public class HomeActivity extends ListLoadingActivity implements HomeView {
                 @Override
                 public void onClick(View v) {
                     News news = (News) v.getTag();
-                    if (news.getKids().size() == 0){
+                    if (news.getKids().size() == 0) {
                         Toast.makeText(getApplicationContext(), R.string.no_comment, Toast.LENGTH_SHORT).show();
                     } else {
                         Intent intent = new Intent(HomeActivity.this, CommentActivity.class);
@@ -113,5 +125,12 @@ public class HomeActivity extends ListLoadingActivity implements HomeView {
     protected void onDestroy() {
         super.onDestroy();
         mHomePresenter.detachView();
+    }
+
+    @Override
+    public void setListPosition(int position) {
+        if (mRecyclerView != null) {
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 }

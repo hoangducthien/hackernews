@@ -3,6 +3,7 @@ package com.hoangthien.hackernews.data.reponsitory.comment;
 import com.hoangthien.hackernews.data.model.Comment;
 import com.hoangthien.hackernews.utils.TAsyncCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,4 +14,9 @@ public interface CommentReponsitory {
 
     void getDataList(List<Long> ids, TAsyncCallback<List<Comment>> result);
 
+    ArrayList<Comment> getCommentsFromCache();
+
+    void clearComments();
+
 }
+

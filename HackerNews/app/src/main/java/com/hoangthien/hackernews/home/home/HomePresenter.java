@@ -1,5 +1,6 @@
 package com.hoangthien.hackernews.home.home;
 
+import android.os.Bundle;
 import android.view.View;
 
 import com.hoangthien.hackernews.R;
@@ -17,6 +18,10 @@ import java.util.List;
  */
 
 public class HomePresenter extends BasePresenter<HomeView> {
+
+    public static final String CURRENT_DATA_INDEX = "aaa";
+    public static final String CAN_LOAD_MORE = "aab";
+    public static final String NEXT_PAGE_SIZE = "aac";
 
     //TODO handle large screen (bigger page size)
     private static final int PAGE_SIZE = 25;
@@ -38,6 +43,31 @@ public class HomePresenter extends BasePresenter<HomeView> {
     public void getData() {
         getView().showLoading();
         mHomeReponsitory.getIdList(mIdsCallback);
+    }
+
+    public void checkCache(Bundle bundle) {
+        int oldListPosition = bundle.getInt(HomeActivity.CURRENT_POSITION, -1);
+        if (oldListPosition > 0) {
+            mIds = mHomeReponsitory.getIdListFromCache();
+            if (mIds != null && !mIds.isEmpty()) {
+                mNewses = mHomeReponsitory.getNewsListFromCache();
+                if (mNewses != null && !mNewses.isEmpty()) {
+                    mCurrentIndex = bundle.getInt(CURRENT_DATA_INDEX);
+                    mNextPageSize = bundle.getInt(NEXT_PAGE_SIZE);
+                    mCanLoadmore = bundle.getBoolean(CAN_LOAD_MORE);
+                    getView().showData(mNewses, mCanLoadmore);
+                    return;
+                }
+            }
+        }
+        getView().showLoading();
+        reloadData();
+    }
+
+    public void saveCurrentState(Bundle bundle) {
+        bundle.putInt(CURRENT_DATA_INDEX, mCurrentIndex);
+        bundle.putInt(NEXT_PAGE_SIZE, mNextPageSize);
+        bundle.putBoolean(CAN_LOAD_MORE, mCanLoadmore);
     }
 
     public void reloadData() {

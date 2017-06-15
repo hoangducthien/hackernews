@@ -13,4 +13,6 @@ public interface HomeView extends ListLoadingView {
 
     void showData(List<News> newses, boolean canLoadmore);
 
+    void setListPosition(int position);
+
 }

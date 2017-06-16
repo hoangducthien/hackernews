@@ -60,11 +60,11 @@ public class HomeListAdapter extends RecyclerBaseAdapter {
     }
 
 
-    private class HomeViewHolder extends RecyclerView.ViewHolder {
+    public static class HomeViewHolder extends RecyclerView.ViewHolder {
 
-        TextView title;
-        TextView subTitle;
-        View parent;
+        public TextView title;
+        public TextView subTitle;
+        public View parent;
 
         public HomeViewHolder(View view) {
             super(view);

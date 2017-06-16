@@ -125,6 +125,7 @@ public class HomeActivity extends ListLoadingActivity implements HomeView {
     protected void onDestroy() {
         super.onDestroy();
         mHomePresenter.detachView();
+        mRecyclerView.removeOnScrollListener(mOnScrollListener);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
     public void checkCache(Bundle bundle) {
         int oldListPosition = bundle.getInt(HomeActivity.CURRENT_POSITION, -1);
-        if (oldListPosition > 0) {
+        if (oldListPosition > -1) {
             mIds = mHomeReponsitory.getIdListFromCache();
             if (mIds != null && !mIds.isEmpty()) {
                 mNewses = mHomeReponsitory.getNewsListFromCache();

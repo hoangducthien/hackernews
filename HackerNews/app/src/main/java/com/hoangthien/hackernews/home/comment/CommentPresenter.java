@@ -55,7 +55,7 @@ public class CommentPresenter extends BasePresenter<CommentView> {
 
     public void checkCache(Bundle bundle) {
         int oldListPosition = bundle.getInt(CommentActivity.CURRENT_POSITION, -1);
-        if (oldListPosition > 0) {
+        if (oldListPosition > -1) {
             mComments = mReponsitory.getCommentsFromCache();
             if (mComments != null && !mComments.isEmpty()) {
                 mCurrentIndex = bundle.getInt(CURRENT_DATA_INDEX);
